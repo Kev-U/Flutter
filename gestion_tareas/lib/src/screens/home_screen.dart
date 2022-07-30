@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:gestion_tareas/src/api/models/model_task.dart';
 import 'package:gestion_tareas/src/api/providers/provider_getTasks.dart';
+import 'package:gestion_tareas/src/screens/addNewTask_screen.dart';
+import 'package:gestion_tareas/src/utils/scaleTransactionPage.dart';
 
 import '../api/response.dart';
 
@@ -13,6 +15,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
 //AddSocialMediaProvider socialMediaProvider = new AddSocialMediaProvider();
 
 GetTasksProvider getTasksProv = new GetTasksProvider();
@@ -21,10 +25,19 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
           title: Text("Home page"),
           centerTitle: true,
-          brightness: Brightness.dark),
+          ),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+        child: FloatingActionButton.extended(
+          icon: Icon(Icons.add),
+          label: Text("Add new task"),
+          onPressed: (){Navigator.popAndPushNamed(context, "addNewTask");},
+        ),
+      ),
       body: FutureBuilder(
         future: getTasksProv.getTasksProv(),
         builder: (context, AsyncSnapshot<Respuesta> snapshot) {
@@ -91,37 +104,46 @@ class _HomeScreenState extends State<HomeScreen> {
           flipAxis: FlipAxis.y,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-            child: Container(
-              margin: EdgeInsets.only(bottom: _w / 20),
-              height: _w / 2,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(20),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.popAndPushNamed(context, "taskInfo",
+                    arguments: {
+                      "taskId": tasksList.id.toString(),
+                    }
+                );
+              },
+              child: Container(
+                margin: EdgeInsets.only(bottom: _w / 20),
+                height: _w / 2,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(tasksList.title),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(tasksList.due_date),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: tasksList.is_completed == 1 ? Text("Completada") : Text("Incompleta"),
-                  ),
-                ],
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(tasksList.title),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(tasksList.due_date),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: tasksList.is_completed == 1 ? Text("Completada") : Text("Incompleta"),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
